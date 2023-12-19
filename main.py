@@ -92,6 +92,8 @@ def hybrid_recommendations(input_song_name, num_recommendations=5, alpha=0.5):
 
 
 #GUI
+sg.theme("DarkBlue14")
+
 playlist_text = sg.InputText("", key='playlist', tooltip="Enter Playlist ID")
 playlist_label = sg.Text("Enter Spotify Playlist Link: ")
 input_song_text = sg.InputText("", key='song', tooltip="Enter exact song name.")
@@ -120,10 +122,13 @@ while True:
 
             music_features_scaled = scaler.fit_transform(music_features)
 
-            recommendations = hybrid_recommendations(input_song_name, num_recommendations=5)
-            print(f"Recommended songs for {input_song_name} are : ")
-            window["recs"].update(values=recommendations['Track Name']+"-- by "+recommendations['Artists'])
-            print(recommendations)
+            try:
+                recommendations = hybrid_recommendations(input_song_name, num_recommendations=5)
+                print(f"Recommended songs for {input_song_name} are : ")
+                window["recs"].update(values=recommendations['Track Name']+"-- by "+recommendations['Artists'])
+                print(recommendations)
+            except TypeError:
+                sg.popup("Please enter song name first.", font=("Helvetica", 20))
         case sg.WIN_CLOSED:
             break
             

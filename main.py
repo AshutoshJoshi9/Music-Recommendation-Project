@@ -107,28 +107,33 @@ window = sg.Window("Song Reccommendations", layout=[[playlist_label, playlist_te
 
 while True:
     event, values = window.read()
+
     match event:
         case 'recommend':
             input_song_name = values['song']
-            #to get data from playlist
-            playlist_ID = values['playlist'][34: 56]
-            print(playlist_ID)
-            music_df = getTrendingPlaylistData(playlist_ID, access_token)
-            #normalizing music features using min-max scaling
-            scaler = MinMaxScaler()
-            music_features = music_df[['Danceability', 'Energy', 'Key', 
-                                        'Loudness', 'Mode', 'Speechiness', 'Acousticness',
-                                        'Instrumentalness', 'Liveness', 'Valence', 'Tempo']].values
+            
+            if (input_song_name == "" or values['playlist'] == ""):
+                sg.popup("Enter playlist link and song name first.")
+            else:
+                #to get data from playlist
+                playlist_ID = values['playlist'][34: 56]
+                print(playlist_ID)
+                music_df = getTrendingPlaylistData(playlist_ID, access_token)
+                #normalizing music features using min-max scaling
+                scaler = MinMaxScaler()
+                music_features = music_df[['Danceability', 'Energy', 'Key', 
+                                            'Loudness', 'Mode', 'Speechiness', 'Acousticness',
+                                            'Instrumentalness', 'Liveness', 'Valence', 'Tempo']].values
 
-            music_features_scaled = scaler.fit_transform(music_features)
+                music_features_scaled = scaler.fit_transform(music_features)
 
-            try:
-                recommendations = hybrid_recommendations(input_song_name, num_recommendations=5)
-                print(f"Recommended songs for {input_song_name} are : ")
-                window["recs"].update(values=recommendations['Track Name']+"-- by "+recommendations['Artists'])
-                print(recommendations)
-            except TypeError:
-                sg.popup("Please enter song name first.", font=("Helvetica", 20))
+                try:
+                    recommendations = hybrid_recommendations(input_song_name, num_recommendations=5)
+                    print(f"Recommended songs for {input_song_name} are : ")
+                    window["recs"].update(values=recommendations['Track Name']+"-- by "+recommendations['Artists'])
+                    print(recommendations)
+                except TypeError:
+                    sg.popup("Please enter valid song name.", font=("Helvetica", 20))
         case sg.WIN_CLOSED:
             break
             

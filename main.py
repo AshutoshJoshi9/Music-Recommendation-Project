@@ -32,19 +32,6 @@ else:
     print("Error obtaining access token.")
     exit()
 
-playlist_ID = '0RwTUdPZdpSUrw25JgE04m'
-
-#to get data from playlist
-music_df = getTrendingPlaylistData(playlist_ID, access_token)
-
-#normalizing music features using min-max scaling
-scaler = MinMaxScaler()
-music_features = music_df[['Danceability', 'Energy', 'Key', 
-                           'Loudness', 'Mode', 'Speechiness', 'Acousticness',
-                           'Instrumentalness', 'Liveness', 'Valence', 'Tempo']].values
-
-music_features_scaled = scaler.fit_transform(music_features)
-
 
 
 #function to get recs based on features
@@ -103,17 +90,17 @@ def hybrid_recommendations(input_song_name, num_recommendations=5, alpha=0.5):
     return hybrid_recommendations
 
 
-input_song_name = "Luxury"
-recommendations = hybrid_recommendations(input_song_name, num_recommendations=5)
-print(f"Recommended songs for {input_song_name} are : ")
-print(recommendations)
 
 #GUI
+playlist_text = sg.InputText("", key='playlist', tooltip="Enter Playlist ID")
+playlist_label = sg.Text("Enter Spotify Playlist Link: ")
 input_song_text = sg.InputText("", key='song', tooltip="Enter exact song name.")
+input_song_name_label = sg.Text("Enter exact name of song: ")
 recommendations_button = sg.Button("Recommend", key='recommend', tooltip="Recommend")
-recommendations_textbox = sg.Listbox(values=recommendations['Track Name']+"-- by "+recommendations['Artists'], key='recs', enable_events=True, size=[80, 10])
+recommendations_textbox = sg.Listbox(values="", key='recs', enable_events=True, size=[80, 10])
 
-window = sg.Window("Song Reccommendations", layout=[[input_song_text, recommendations_button], 
+window = sg.Window("Song Reccommendations", layout=[[playlist_label, playlist_text], 
+                                                    [input_song_name_label, input_song_text, recommendations_button], 
                                                     [recommendations_textbox]])
 
 while True:
@@ -121,7 +108,25 @@ while True:
     match event:
         case 'recommend':
             input_song_name = values['song']
-            print(input_song_name)
+            #to get data from playlist
+            playlist_ID = values['playlist'][34: 56]
+            print(playlist_ID)
+            music_df = getTrendingPlaylistData(playlist_ID, access_token)
+            #normalizing music features using min-max scaling
+            scaler = MinMaxScaler()
+            music_features = music_df[['Danceability', 'Energy', 'Key', 
+                                        'Loudness', 'Mode', 'Speechiness', 'Acousticness',
+                                        'Instrumentalness', 'Liveness', 'Valence', 'Tempo']].values
+
+            music_features_scaled = scaler.fit_transform(music_features)
+
+            recommendations = hybrid_recommendations(input_song_name, num_recommendations=5)
+            print(f"Recommended songs for {input_song_name} are : ")
+            window["recs"].update(values=recommendations['Track Name']+"-- by "+recommendations['Artists'])
+            print(recommendations)
+        case sg.WIN_CLOSED:
+            break
+            
     print(event)
     print(values)
 

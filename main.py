@@ -12,8 +12,8 @@ from functions import *
 import PySimpleGUI as sg
 
 
-client_ID = 'c0f9b7a154ff4cb6808b7f0337aa3e04'
-client_secret = '1b108e0541f5463f9aae2c55f6d86f99'
+client_ID = '<insert your client ID>'
+client_secret = '<insert your client secret>'
 
 client_credentials = f"{client_ID}:{client_secret}"
 client_credentials_base64 = base64.b64encode(client_credentials.encode())
